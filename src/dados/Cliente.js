@@ -1,6 +1,12 @@
 export default class Cliente {
     constructor(){
-        this.cliente = {};
+        this.cliente = {
+            cartaoConsumo: "",
+            cartaoPrePago: "",
+            produtos: [],
+            total: 0,
+            saldo: 0
+        };
     }
     
     adicionarCartaoConsumo(cartaoConsumo){

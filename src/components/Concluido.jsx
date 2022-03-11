@@ -7,7 +7,7 @@ function Concluido() {
 
     setTimeout(() => {
         navigate("/");
-    }, 10000);
+    }, 7000);
 
   return (
     <div><h2>PAGAMENTO CONCLUÍDO</h2></div>

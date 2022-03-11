@@ -7,10 +7,10 @@ function Error() {
 
     setTimeout(() => {
         navigate("/");
-    }, 10000);
+    }, 7000);
   return (
-    <div>
-        <h2>PAGAMENTO NÃO CONCLUÍDO</h2>
+    <div className='Error'>
+        <h2>SALDO INSUFICIENTE</h2>
         <h3>FAVOR DIRIJA-SE AO CAIXA</h3>
     </div>
   )

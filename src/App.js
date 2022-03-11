@@ -1,43 +1,35 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState } from "react";
 import "./App.css";
 import FormConsumo from "./components/FormConsumo";
+import FormConsulta from "./components/FormConsulta";
 import ListConsumo from "./components/ListConsumo";
 import ConfirmacaoPagamento from "./components/ConfirmacaoPagamento";
 import Concluido from "./components/Concluido";
 import Error from "./components/Error";
-import { buscaIdCliente, buscaConsumoCliente } from "./api/api";
+
+
 import Cliente from './dados/Cliente';
+import Inicio from "./components/Inicio";
+import Saldo from "./components/Saldo";
 
 function App() {
 
   const cliente = new Cliente();
- 
-  const [dados, setDados] = useState(
-    [
-      {
-        cartaoConsumo: '',
-        cartaoPrePago: '',
-        totalConsumido: 0,
-        produtos: [],
-        clientId: ''
-      }
-    ]
-  )
-
- 
-
+  
   return (
-    <BrowserRouter>
+    <BrowserRouter >
       <div className="App">
         <h2>Checkout</h2>
         <br />
         <br />
         <Routes>
-          <Route path="/" element={<FormConsumo  aoEnviar={salvaCartaoConsumo} cliente={cliente}/>} />
+          <Route path="/" element={<Inicio/>}/>
+          <Route path="/pagamento" element={<FormConsumo aoEnviar={salvaCartaoConsumo} cliente={cliente}/>} />
+          <Route path="/consulta" element={<FormConsulta cliente={cliente}/>}/>
+          <Route path="/saldo" element={<Saldo cliente={cliente}/> }/>
           <Route
             path="/consumo"
-            element={<ListConsumo cliente={cliente} receberDados={receberDados} />}
+            element={<ListConsumo cliente={cliente}  />}
           />
           <Route path="/confirmacao" element={<ConfirmacaoPagamento 
             cliente={cliente.cliente} />} />
@@ -48,23 +40,15 @@ function App() {
     </BrowserRouter>
   );
 
-  function salvaCartaoConsumo(cartao){
+
+  function salvaCartaoConsumo(cartao, produtos, total){
     cliente.adicionarCartaoConsumo(cartao);
-    //console.log(cliente);
-    buscaConsumoCliente(cartao, cliente);
-
-   
-  }
-
-  //recebe o saldo consumido e o cartaoprepago
-  function receberDados(cartao, total, produtos) {
-
-    cliente.adicionarCartaoPrePago(cartao);
-    cliente.adicionarValorTotal(total);
     cliente.adicionarProdutos(produtos);
-    
-    buscaIdCliente(cartao, cliente);
+    cliente.adicionarValorTotal(total);
+    console.log(cliente);
+    //buscaConsumoCliente(cartao, cliente);
   }
+
 }
 
 export default App;

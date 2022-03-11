@@ -1,55 +1,16 @@
 import axios from "axios";
 
-export const buscaIdCliente = async (cartao, cliente) => {
-  console.log("inicio da busca cliente");
-  console.log(cartao);
-
+//busca o id de cliente WP
+export const bIdCliente = async (cartao) => {
   const url =
-    "https://localhost.com.br/backend/index.php?cartao=" + cartao;
-  const resposta = await axios.get(url);
+    "https://dadindarestaurante.com.br/backend/index.php?cartao=" + cartao;
+  return axios.get(url);
+}
 
-  //resposta.data[0].user_id ID DO CLIENTE DENTRO DO WOOCOMMERCE
-  console.log(resposta.data[0].user_id);
-  cliente.cliente.clientId = resposta.data[0].user_id;
-
-  console.log("final da busca cliente");
-};
-
-export const buscaConsumoCliente = async (comanda, cliente) => {
-  console.log("inicio busca consumo cliente");
-
-  const resposta = await axios
-    .get(
-      "http://25.45.12.30:50101/CatedralMobile/Conta/" +
-        comanda +
-        "?nomeAparelho=AcessoCantina&operacao=" +
-        comanda,
-      {
-        headers: {
-          versaoApp: "1.0.0.0",
-          appName: "CATEDRALCANTINA",
-          requesterId: "#",
-          Authorization: "#",
-        },
-      }
-    )
-    .then((resposta) => {
-      console.log(resposta.data);
-      //setDado(resposta.data);
-      cliente.listaConsumo = resposta.data;
-    })
-    .catch((error) => {
-      console.log(error.message);
-      //setDado("Comanda não encontrada");
-      cliente.listaConsumo = "Comanda não encontrada";
-    });
-
-  console.log("final da busca consumo cliente");
-};
-
-export const bloqueioComanda = async (comanda) => {
-  //http://localhost:50101/CatedralMobile/Conta/100?nomeAparelho=AcessoCantina&operacao=100
-  const resposta = await axios.post(
+//buscar consumo da comanda Catedral
+export const bConsumo = async (comanda, cliente) => {
+  return axios
+  .get(
     "http://25.45.12.30:50101/CatedralMobile/Conta/" +
       comanda +
       "?nomeAparelho=AcessoCantina&operacao=" +
@@ -58,48 +19,71 @@ export const bloqueioComanda = async (comanda) => {
       headers: {
         versaoApp: "1.0.0.0",
         appName: "CATEDRALCANTINA",
-        requesterId: "#",
-        Authorization: "#",
+        requesterId: "6b487a3722f6a893aaa6",
+        Authorization: "Basic QjE6QjE=",
+      },
+    }
+  );
+}
+
+//Realiza o bloqueio da comanda para não ser mais usada
+export const bloqueioComanda = async (comanda) => {
+ 
+  return axios
+  .post("http://25.45.12.30:50101/CatedralMobile/Conta/" + comanda +
+      "?nomeAparelho=AcessoCantina&operacao=" + comanda,  {"Fechar": true},
+    {
+      headers: {
+        versaoApp: "1.0.0.0",
+        appName: "CATEDRALCANTINA",
+        requesterId: "6b487a3722f6a893aaa6",
+        Authorization: "Basic QjE6QjE=",
       },
     }
   );
 };
 
-export const pag = async (
-  clientId, totalConsumido, detalhes, retorno
-) => {
-  console.log("inicio efetuar pagamento");
-  console.log(clientId);
-  console.log(totalConsumido);
-  console.log(detalhes);
 
-  const data = {
+export const buscaSaldoPrePago = async ( 
+  clientId
+ ) => {
+   console.log("início busca de saldo cartão pré pago.");
+   console.log(clientId);
+   return axios
+   .get("https://dadindarestaurante.com.br/wp-json/wc/v2/wallet/balance/"+clientId , {
+     auth: {
+      username: "ck_1545cc324ff07db3a27ca98a21fb981e20d08585",
+      password: "cs_ace61e5c22a7ff2cd0ca0c6829b30aafb1149a0e",
+     }
+   })
+ }
+
+
+ export const pagamentoComandaComPrePago = async (
+   clientId, totalConsumido, detalhes
+ ) => {
+   console.log("início do pagamento do consumo com cartão pré pago");
+
+   const data = {
     type: "debit",
     amount: parseFloat(totalConsumido),
     details: detalhes,
-  };
+   }
 
-  const url =
-    "https://localhost.com.br/wp-json/wc/v2/wallet/" + clientId;
+   const url =
+    "https://dadindarestaurante.com.br/wp-json/wc/v2/wallet/" + clientId;
   console.log(url);
 
-  const resposta = await axios
+  return axios
     .post(url, data, {
       auth: {
-        username: "#",
-        password: "#",
+        username: "ck_1545cc324ff07db3a27ca98a21fb981e20d08585",
+        password: "cs_ace61e5c22a7ff2cd0ca0c6829b30aafb1149a0e",
       },
-    })
-    .then((resposta) => {
-      retorno(resposta.data);
-      console.log(resposta.data);
+    });
+ }
 
-      
-    })
-    
 
-  console.log("fim efetuar pagamento");
-}
 
 export const efetuaPagamento = async (
   clientId,

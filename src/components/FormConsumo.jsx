@@ -1,29 +1,52 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { TextField } from "@mui/material";
-import {useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { bConsumo } from "./../api/api";
+import IdleTimer from "react-idle-timer";
+import Spinner from './Spinner';
 
-import { buscaIdCliente, buscaConsumoCliente } from "./../api/api";
+function FormConsumo({ aoEnviar }, { cliente }) {
 
-function FormConsumo({aoEnviar}, {cliente}) {
-    const [cartaoConsumo, setCartaoConsumo] = useState();
-    const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+  const [cartaoConsumo, setCartaoConsumo] = useState();
+  const navigate = useNavigate();
+  const [error, setError] = useState(false);
+  const idleTimerRef = useRef();
+  const [spinner, setSpinner] = useState(false);
+
+  const onIdle = () => {
+    console.log("Inativo");
+    navigate("/");
+  }
 
   return (
     <div>
-      <h3>Aproxime seu cartão de consumo</h3>
-      {loading ? "carregando..." : ""}
-
+      <h1>Aproxime seu cartão de consumo</h1>
+      <IdleTimer
+        ref={idleTimerRef}
+        timeout={10000}
+        onIdle={onIdle}
+      />
+      {spinner ? <Spinner/> : ""}
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          
-          aoEnviar(cartaoConsumo);
-           setTimeout(() => {
-            navigate("/consumo/");
-          }, 2000);
-            
+          setSpinner(true);
+          bConsumo(cartaoConsumo)
+            .then((res) => {
+              setSpinner(false);
+              console.log("Busca de cartão consumo OK");
+              aoEnviar(cartaoConsumo, res.data.Produtos, res.data.TotalConta);
+              navigate("/consumo/");
+            })
+            .catch((Error) => {
+              setSpinner(false);
+              console.log("Erro")
+              setError(true);
+              //setTimeout(() => {
+              //  navigate("/");
+              //}, 5000);
+            });
         }}
       >
         <TextField
@@ -31,13 +54,14 @@ function FormConsumo({aoEnviar}, {cliente}) {
           name="cartaoConsumo"
           label="Cartão de Consumo"
           variant="filled"
-          
+          autoComplete="false"
+          error={error}
+          helperText={error ? "Cartão de Consumo não Encontrado" : ""}
           autoFocus
-          onChange={
-              (event) => {
-                  setCartaoConsumo(event.target.value);
-              }
-          }
+          sx={{ width: 300,  minHeight: 200 }}
+          onChange={(event) => {
+            setCartaoConsumo(event.target.value);
+          }}
         />
       </form>
     </div>
